@@ -1,6 +1,6 @@
 package simulations
-
 import io.gatling.core.Predef._
+import io.gatling.core.structure.ChainBuilder
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
@@ -9,32 +9,27 @@ class BasicLoadSimulation extends Simulation {
 
   val httpConf = http.baseUrl("http://localhost:8080/app/")
     .header("Accept", "application/json")
-
-  def getAllVideoGames() = {
+  def getAllVideoGames(): ChainBuilder ={
     exec(
-      http("Get all video games")
+      http("Get All video games")
         .get("videogames")
         .check(status.is(200))
     )
   }
 
-  def getSpecificGame() = {
+  def getSpecificGame(): ChainBuilder ={
     exec(
-      http("Get Specific Game")
+
+      http("get specific game")
         .get("videogames/2")
         .check(status.is(200))
     )
   }
 
-  val scn = scenario("Basic Load Simulation")
-    .exec(getAllVideoGames())
-    .pause(5)
-    .exec(getSpecificGame())
-    .pause(5)
-    .exec(getAllVideoGames())
+  //Scenario Defination
 
-  val scn2 = scenario("Basic Load Simulation 2")
-    .exec(getAllVideoGames())
+  val scn = scenario("Basic Load simulation")
+    .exec(getAllVideoGames()) //Code Reuse
     .pause(5)
     .exec(getSpecificGame())
     .pause(5)
@@ -42,13 +37,12 @@ class BasicLoadSimulation extends Simulation {
 
   setUp(
     scn.inject(
-      nothingFor(5.seconds),
+      nothingFor(5 seconds),
       atOnceUsers(5),
-      rampUsers(10) during (10.seconds)
-    ).protocols(httpConf.inferHtmlResources()),
-    scn2.inject(
-      atOnceUsers(500)
-    ).protocols(httpConf)
-  )
+      // rampUsers(10) during(10) // 10 users for 10 secs
+      rampUsersPerSec(1) to(10) during(20 seconds)
+    ).protocols(httpConf.inferHtmlResources())
+  ).maxDuration(1 minute) //Specifying a fixed duration of time
+
 
 }
