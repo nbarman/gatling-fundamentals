@@ -4,6 +4,7 @@ import io.gatling.core.structure.ChainBuilder
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 class BasicLoadSimulation extends Simulation {
 
