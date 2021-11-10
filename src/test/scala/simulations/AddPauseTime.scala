@@ -60,6 +60,6 @@ class AddPauseTime extends Simulation{
     scn.inject(atOnceUsers(userCount))//Getting from external config
   ).protocols(httpConf)
     .assertions( //Assertions to test script
-      global.responseTime.max.lt(200)
+      global.responseTime.max.lt(20000)
     )
 }
