@@ -10,7 +10,7 @@ class AddPauseTime extends Simulation{
   val httpConf = http.baseUrl("http://localhost:8080/app/")
     .header("Accept", "application/json")
 
-  val scn = scenario("Video Game DB Calls")
+  val scn = scenario("Video Game DB Calls 1")
     .exec(getAllGames()) //Code Reuse
     .pause(5)
     .exec(http("Get specific Game").get("videogames/1")).pause(1,20)
