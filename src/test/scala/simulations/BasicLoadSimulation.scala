@@ -47,13 +47,13 @@ class BasicLoadSimulation extends Simulation {
   val csvFeeder = csv("data/gameCsvFile.csv").circular
 
   def getSpecificVideoGameFromFeeder() = {
-    repeat(10) {
+    repeat(5) {
       feed(csvFeeder)
         .exec(http("Get specific video game")
           .get("videogames/${gameID}")
           .check(jsonPath("$.name").is("${gameName}"))
           .check(status.is(200)))
-        .pause(1)
+        .pause(1.second)
     }
   }
 
