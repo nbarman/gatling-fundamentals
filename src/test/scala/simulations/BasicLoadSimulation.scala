@@ -14,6 +14,14 @@ class BasicLoadSimulation extends Simulation {
 
   //Scenario Definition
   //Method definition
+  //Getting the property from the command line
+  private def getProperty(propertyName: String, defaultVal : String): String = {
+    Option(System.getenv(propertyName))
+      .orElse(Option(System.getProperty(propertyName)))
+      .getOrElse(defaultVal)
+  }
+
+  def userCount: Int = getProperty("USERS", "5").toInt
 
   def getAllVideoGames(): ChainBuilder ={
     exec(
@@ -78,7 +86,7 @@ class BasicLoadSimulation extends Simulation {
   setUp(
                 new BasicLoadSimulation().scn1.inject(
                   nothingFor(5 seconds),
-                  atOnceUsers(5)
+                  atOnceUsers(userCount)
                 ).protocols(httpConf.inferHtmlResources()),
 
                 new BasicLoadSimulation().scn2.inject(
