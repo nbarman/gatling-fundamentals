@@ -14,7 +14,7 @@ class CsvFeeder extends Simulation {
     repeat(10) {
       feed(csvFeeder)
         .exec(http("Get specific video game")
-        .get("videogames/${gameId}")
+        .get("videogames/${gameID}")
         .check(jsonPath("$.name").is("${gameName}"))
         .check(status.is(200)))
         .pause(1)
