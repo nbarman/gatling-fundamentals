@@ -3,13 +3,18 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.http.Predef._
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 class BasicLoadSimulation extends Simulation {
 
+  //HTTP Config
   val httpConf = http.baseUrl("http://localhost:8080/app/")
     .header("Accept", "application/json")
+
+  //Scenario Definition
+  //Method definition
+
   def getAllVideoGames(): ChainBuilder ={
     exec(
       http("Get All video games")
@@ -23,21 +28,44 @@ class BasicLoadSimulation extends Simulation {
 
       http("get specific game")
         .get("videogames/2")
-        .check(status.is(200))
+        .check(status.not(404))
+        .check(status.in(200 to 210)) //Status Range
     )
   }
 
-  //Scenario Defination
-
-  val scn = scenario("Basic Load simulation")
+  //PAUSE Scenario and Scenario 1
+  val scn1 = scenario("Basic Load simulation")
     .exec(getAllVideoGames()) //Code Reuse
-    .pause(5)
+    .pause(5000.milliseconds)
     .exec(getSpecificGame())
-    .pause(5)
-    .exec(getAllVideoGames())
 
+  //JSONPATH and Scenario 2
+  val scn2 = scenario("Gatling Load Testing")
+
+    .exec(http("Get particular gameID").
+      get("videogames")
+      .check(jsonPath("$[1].id").//JSONPATH Definition
+        saveAs("gameId")))
+
+    .exec(http("Get particular gameID").
+      get("videogames"). //ENDPOINT
+      check(jsonPath("$[1].id").
+        saveAs("gameId")))
+
+    .exec(http("Get the game from stored param")
+      .get("videogames/${gameId}")
+      .check(jsonPath("$.name")
+        .is("Grand Turismo 3"))
+      .check(bodyString.saveAs("response")))
+
+    .exec{session => println(session("response").as[String]); session}
+
+    .exec{session => println(session); session}
+
+
+  //Load Scenarios
   setUp(
-    scn.inject(
+    scn1.inject(
       nothingFor(5 seconds),
       atOnceUsers(5),
       // rampUsers(10) during(10) // 10 users for 10 secs

@@ -16,10 +16,15 @@ class AddPauseTime extends Simulation{
     .exec(http("Get specific Game").get("videogames/1")).pause(1,20)
     .exec(http("Get all video games - 2nd call").get("videogames")).pause(3000.milliseconds)
 
-  val scn1 = scenario("Test saveAs Param")
+  val scn1 = scenario("Gatling Load Testing")
 
     .exec(http("Get particular gameID").
-      get("videogames").
+      get("videogames")
+      .check(jsonPath("$[1].id").
+        saveAs("gameId")))
+
+    .exec(http("Get particular gameID").
+      get("videogames"). //ENDPOINT
       check(jsonPath("$[1].id").
         saveAs("gameId")))
 
